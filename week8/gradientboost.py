@@ -51,6 +51,19 @@ class GradientBooster():
         train_scores = []
         val_scores = []
         ### YOUR CODE HERE 
+        for i in range(self.n_estimators):
+            # train weak learner
+            tmp = self.weak_learner()
+            tmp.fit(X, y)
+            self.models.append(tmp)
+            # compute alpha
+            alpha = lr
+            self.alphas.append(alpha)
+            # update weights
+            train_score = self.score(X, y)
+            val_score = self.score(X_val, y_val)
+            train_scores.append(train_score)
+            val_scores.append(val_score)
         ### END CODE
 
         # remember to ensure that self.models and self.alphas are filled
@@ -74,6 +87,7 @@ class GradientBooster():
         if len(self.models) == 0:
             return np.zeros(X.shape[0])
         ### YOUR CODE HERE 3-8 lines
+        pred = [pred * alpha for pred, alpha in zip(self.models, self.alphas)]
         ### END CODE
         return pred
         
@@ -88,6 +102,7 @@ class GradientBooster():
         """
         score = 0
         ### YOUR CODE HERE 1-3 lines
+        score = np.mean((self.predict(X) - y) ** 2)
         ### END CODE
         return score
 

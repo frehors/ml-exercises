@@ -43,6 +43,19 @@ class AdaBoostClassifier():
         scores = []
         exp_losses = []
         ### YOUR CODE HERE 
+        for i in range(self.n_estimators):
+            # train weak learner
+            tmp = self.weak_learner()
+            tmp.fit(X, y, w)
+
+            # compute alpha
+            alpha = 0.5 * np.log((1 - self.exp_loss(X, y)) / self.exp_loss(X, y))
+            self.models.append(tmp)
+            self.alphas.append(alpha)
+            # update weights
+            score = self.score(X, y)
+            exp_loss = self.exp_loss(X, y)
+        return scores, exp_losses
         ### END CODE
 
         # remember to ensure that self.models and self.alphas are filled
@@ -64,6 +77,7 @@ class AdaBoostClassifier():
 
         loss = None
         ### YOUR CODE here 1-3 lines
+        loss = np.mean(np.exp(-y * self.ensemble_output(X)))
         ### END CODE
         return loss
         
@@ -81,6 +95,9 @@ class AdaBoostClassifier():
         if len(self.models) == 0:
             return np.zeros(X.shape[0])
         ### YOUR CODE HERE 3-8 lines
+        print(self.alphas)
+        for model, alpha in zip(self.models, self.alphas):
+            pred += alpha * model.predict(X)
         ### END CODE
         return pred
         
@@ -93,6 +110,7 @@ class AdaBoostClassifier():
         """
         pred = None
         ### YOUR CODE Here 1-3 lines
+        pred = np.sign(self.ensemble_output(X))
         ### END CODE 
         return pred
 
@@ -106,6 +124,7 @@ class AdaBoostClassifier():
         """
         score = 0
         ### YOUR CODE HERE 1-3 lines
+        score = np.mean(self.predict(X) == y)
         ### END CODE
         return score
 
